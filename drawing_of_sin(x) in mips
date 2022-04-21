@@ -1,0 +1,90 @@
+.data
+
+pi: .float   3.1415927
+precise: .float 0.0000010
+	DISPLAY: .space 524288 
+	
+	DISPLAYWIDTH: .word 512
+	DISPLAYHEIGHT: .word 256
+	green: .word 0x00ff00
+	dif: .asciiz " "
+	zeroo: .float 0.0
+	limit: .float 180.0
+	testingnum: .float 0.017453
+	bignum: .float 128
+.text
+main:
+
+	li $t0,3 
+	lwc1 $f5,precise 
+	
+	lwc1 $f8, zeroo
+	lwc1 $f10, testingnum
+	li $s1, 180
+	li $s6, -180
+	lwc1 $f18, bignum
+	
+	
+	power:
+		mov.s $f1, $f8
+		jal sinus
+		li $t0,3 
+		lwc1 $f5,precise 
+		cvt.w.s $f13, $f1
+		mul.s $f12, $f12, $f18
+		cvt.w.s $f14, $f12
+		mfc1 $s2, $f13
+		mfc1 $s3, $f14
+		add $a0, $s1, 176
+		add $a1, $s3, 128
+		lw $a2, green
+		jal set_pixel_color
+		add.s $f8, $f8, $f10
+		subi $s1, $s1, 1
+		beq $s1, $s6, exit
+		j power
+		exit:
+		li $v0,10
+		syscall 
+
+sinus:
+	mul.s $f3,$f1,$f1
+	mov.s $f12,$f1 
+	for:
+	abs.s $f2,$f1
+	c.lt.s $f2,$f5
+	bc1t endfor
+	subu $t1,$t0,1
+	mul $t1,$t1,$t0
+	mtc1 $t1, $f4
+	cvt.s.w $f4, $f4
+	div.s $f4,$f3,$f4
+	neg.s $f4,$f4
+	mul.s $f1,$f1,$f4 
+
+
+
+	add.s $f12,$f12,$f1
+
+	addu $t0,$t0,2 
+	b for 
+	endfor:
+	jr $ra
+set_pixel_color:
+# Assume a display of width DISPLAYWIDTH and height DISPLAYHEIGHT
+# Pixels are numbered from 0,0 at the top left
+# a0: x-coordinate
+# a1: y-coordinate
+# a2: color
+# address of pixel = DISPLAY + (y*DISPLAYWIDTH + x)*4
+#y rows down and x pixels across
+# write color (a2) at arrayposition
+
+	lw $t2, DISPLAYWIDTH
+	mul $t2, $t2, $a1 	# y*DISPLAYWIDTH
+	add $t2,$t2, $a0 	# +x
+	sll $t2, $t2, 2 	# *4
+	la $t3, DISPLAY 	# get address of display: DISPLAY
+	add $t3, $t3, $t2	# add the calculated address of the pixel
+	sw $a2, ($t3) 		# write color to that pixel
+	jr $ra 			# return
