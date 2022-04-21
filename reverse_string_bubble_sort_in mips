@@ -1,0 +1,131 @@
+#we use defined Stack struct with library or other method
+# void reverse(char String[], int length){
+#       stack = (char*)malloc(length*sizeof(char));
+#	int j;
+#	j=0;
+#	for (; j < length; ++j) {
+#           push(String[j]); 
+#  	}
+#	int k=0;
+#       for (; k < length; ++k) { 
+#          String[k] = pop(); /.popping in LIFO order
+#	}
+# }
+#void swap(int *xp, int *yp)
+#{
+#    int tempo = *cp;
+#    *cp = *dp;
+#    *dp = tempo;
+#}
+# void string_bubble_sort(char String2[], int length2){
+#
+# int i, j;
+# for (i = 0; i < length2-1; i++)       
+#      for (j = 0; j < length2-i-1; j++)
+#           if (String2[j] > String2[j+1])
+ #             swap(&String2[j], &String2[j+1]);
+#
+# }
+.data
+	S: .asciiz "Hello"
+	length: .word 5
+	S2: .asciiz "HelloWorld"
+	length2:.word 10
+	nl: .asciiz "\n"
+	
+.text
+	main:
+	la $a0, S 
+	lw $a2, length
+	
+	#reverse procedure
+	jal reverse
+	
+	#print the result
+	li $v0, 4     
+        la $a2, S
+        syscall
+	
+	#print nl
+	li $v0,4
+	la $a0, nl
+	syscall
+#staff of task 2	
+main2:	
+	la $s1 S2
+	la $s0 length2	
+		
+	jal bubblesort
+	#printing
+	li $v0 4	
+	move $a0 $s1
+	syscall
+	#exit
+	li $v0 10 	
+	syscall
+bubblesort:
+	addi $sp $sp -12
+	sw $ra ($sp)  # using returning address
+	sw $s0,4($sp)  # length
+ 	sw $s1,8($sp)  # S2
+	
+	li $t8, 0 		 	# for swapping, 0 - true
+Loopswapping:   
+	lb $t7, ($s0)	 		# moving length to t7
+	addi $t7, $t7, -1 		
+	bgtz $t8, bubbleDone 		# if after swaping its false, then program is going to exit
+	li $t8, 1			# 1-false
+loop1:
+	beq $t7, $zero, Loopswapping	# if t7 = 0, go to loopswapping
+	addi $t6, $t7, -1 		
+	move $t1, $t7 			
+	move $t2, $t6	 		
+	add $t3, $t1, $s1 		
+	add $t4, $t2, $s1 		
+	lb $t5, ($t3)			
+	lb $t6, ($t4)			
+	blt $t5, $t6, swap 	#  if curr value less than previous  go to swap
+	addi $t7, $t7, -1 	
+	j loop1 			
+
+swap: 
+	sb  $t6, ($t3) 			# store prev value into t3
+	sb  $t5, ($t4)			# store curr value into t4
+	addi $t7, $t7, -1 		
+	li $t8, 0 			# swapped is 0, means true
+	j loop1		
+
+bubbleDone: 
+	lw $ra ($sp)   # return address loading
+	lw $s1,8($sp)  # load $s1
+	lw $s0,4($sp)  # load $s0
+	addi $sp $sp 12 # the same as task1
+	jr $ra
+#staff of first task	
+reverse:
+	addi $sp, $sp, -12
+	sw $s3, 0($sp)#charNow
+	sw $s4, 4($sp)#j
+	sw $s5, 8($sp)#k
+pushing:
+	beq $s5, $a2, popping # after pushing, we jump to popping
+	lb $s3, S($s5) #s3 = S[j]
+	addi $sp, $sp, -4
+        sw $s3,($sp) # pushing s3		
+	addi $s5, $s5, 1 #incrementation of j
+	j pushing
+popping:
+	beq    	$s4, $a2, Reverseend #after popping we jump to reverseend
+			
+	lw      $s3, ($sp)  # popping
+        addi    $sp, $sp, 4# taking space from the stack
+        		
+        sb      $s3, S($s4) # storing characters
+        addi    $s4, $s4, 1 # incrementation of k
+        j popping
+Reverseend:
+	lw $s5, 8($sp)
+	lw $s4, 4($sp)
+	lw $s3, 0($sp)
+	addi $sp, $sp, 12
+	jr $ra
