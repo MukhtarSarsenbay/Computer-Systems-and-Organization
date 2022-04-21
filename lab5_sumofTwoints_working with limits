@@ -1,0 +1,99 @@
+.data 
+	promt: .asciiz" Enter your first number:"
+	promtn2:.asciiz"Enter your second number:"
+	int1: .word  2147483647 
+	int2: .word -2147483648
+	message: .asciiz"Try again!\n"
+
+.text 
+main:
+first:
+li $v0, 4 #text
+la $a0, promt
+syscall
+li $s4, 0#EXCEPTION STAFF
+
+# get int
+li   $v0, 5
+syscall
+
+move $t0, $v0
+
+add $s4, , $0, 1 #checking first with exception
+
+second: 
+li $v0, 4 #printing
+la $a0, promtn2
+syscall
+
+# get int2
+li   $v0, 5
+syscall
+
+move $t1, $v0
+
+add $s4, $0, 1#again checking
+
+addition:
+addu $t3, $t0,$t1#sum
+
+lw $a1,int1#MAX
+lw $a2,int2#MIN
+
+
+slt $s0,$a1,$t3
+bne $s0,$zero, overflow
+
+	
+slt $s1,$a2, $t3
+beq $s1,$zero, overflow
+	
+move $a0, $t3	
+li $v0, 1 
+syscall
+
+li $v0, 10#exit
+syscall	
+
+overflow:
+	li $v0, 4
+	la $a0,message
+	syscall
+	j main
+
+
+
+
+ .ktext  0x80000180
+
+    move    $k0,$v0                 
+    move    $k1,$a1                 
+    li $t5, 2
+    li $t6, 1
+ 
+    
+    
+    beq $s4, $t6, secprint
+
+frstprint:
+  beq $s4, $t6, secprint
+  li $v0, 4 
+  la $a0, promt
+  syscall
+  jal except
+
+  
+secprint:
+
+  li $v0, 4 
+  la $a0, promtn2
+  syscall
+
+except:
+      mfc0    $a1,$14                
+      mtc0    $a1,$14                
+      mfc0    $a1,$14               
+      move    $v0,$k0              
+      move    $a1,$k1                
+      eret
+ 
