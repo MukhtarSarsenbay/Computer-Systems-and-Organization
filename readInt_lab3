@@ -1,0 +1,145 @@
+#include <stdio.h>
+
+#int sum(int Arr[], int length) {
+#int sum = 0;
+#int index = 0;
+#while(index < length) {
+#sum = sum + Arr[index];
+#index++;
+#}
+#return sum;
+#}
+#void replace(int Arr[], int length, int x, int y) {
+#int index = 0;
+#while(index < length) {
+#if(Arr[index] == x) {
+#Arr[index] = y;
+#}
+#printf("%i ", Arr[index]);
+#}
+#}
+#int main(void) {
+#int Arr[] = {1, 2, 4, 3, 2, 2};
+#int num;
+#scanf("%i", &num);
+#printf("%i\n", num);
+#if(num == 0) {
+#int ans = sum(Arr, 6);
+#printf("%i\n", ans);
+#} else {
+#replace(Arr, 6, 2, 5);
+#}
+#return 0;
+#}
+
+.data 
+Array: .space 24
+x: .word 2
+y: .word 5
+space: .asciiz " "
+nl: .asciiz "\n"
+.text
+main:
+	jal readInt
+	#array staff
+	li $v0,1
+	lw $a0,x
+	li $v0,1
+	lw $a1,y
+	addi $s0, $zero,1
+	add $s1, $s1,$a0
+	addi $s2, $zero,4
+	addi $s3, $zero,3
+	add $s4, $s4,$a0
+	add $s5, $s5,$a0
+	#index
+	addi $t0,$zero,0
+	
+	sw $s0,Array($t0)
+		addi $t0,$t0,4
+	sw $s1,Array($t0)
+		addi $t0,$t0,4
+	sw $s2,Array($t0)
+		addi $t0,$t0,4	
+	sw $s3,Array($t0)
+		addi $t0,$t0,4	
+	sw $s4,Array($t0)
+		addi $t0,$t0,4	
+	sw $s5,Array($t0)
+		addi $t0,$t0,4	
+	#clear
+	addi $t0,$zero, 0
+	#if statement
+	bne $t1, $zero,replace
+sum:	
+	addi $s0,$zero, 0
+  	addi $a0,$zero, 0
+  	addi $t0, $zero,0
+ loop:    
+  	bge $s0, 6, printInt   
+  	lw $t1,Array($t0)  
+ 	 addu $a0, $a0, $t1 
+  	addi $t0,$t0,4    
+  	addi $s0,$s0,1      
+  	j loop
+printInt:
+  li $v0,1 
+  syscall  
+  j exit
+replace:  
+	addi $s0, $zero,1
+	add $s1, $zero,$a1
+	addi $s2, $zero,4
+	addi $s3, $zero,3
+	add $s4, $zero,$a1
+	add $s5, $zero,$a1
+	#index
+	addi $t0,$zero,0
+	
+	sw $s0,Array($t0)
+		addi $t0,$t0,4
+	sw $s1,Array($t0)
+		addi $t0,$t0,4
+	sw $s2,Array($t0)
+		addi $t0,$t0,4	
+	sw $s3,Array($t0)
+		addi $t0,$t0,4	
+	sw $s4,Array($t0)
+		addi $t0,$t0,4	
+	sw $s5,Array($t0)
+		addi $t0,$t0,4	
+	#clear
+	addi $t0,$zero, 0
+printArrInt:
+	beq $t0, 24, exit
+	lw $t6, Array($t0)
+	addi $t0, $t0, 4
+	#printing
+	li $v0,1
+	move $a0,$t6
+	syscall
+	#print space
+	li $v0,4
+	la $a0, space
+	syscall
+	
+	j printArrInt
+
+exit: 
+	li $v0, 10
+	syscall
+readInt:
+	#get int
+	li $v0,5
+	syscall
+	#STORE
+	move $t1, $v0
+	#print
+	li $v0,1
+	move $a0, $t1
+	syscall
+	#print nl
+	li $v0,4
+	la $a0, nl
+	syscall
+	jr $ra
