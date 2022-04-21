@@ -1,0 +1,95 @@
+
+.data
+    message: .asciiz "Enter x value:"
+    newline: .asciiz "\n"
+    testingx: .float -1.0         
+    powern: .word 12 #last term              
+    first: .float 0.0          
+    begin: .float 1.0         
+.text
+main:
+#Display message
+li $v0, 4 
+la $a0, message 
+syscall 
+#Read the input 
+li $v0, 6
+syscall
+#store
+mov.s $f12,$f0
+#loading -1
+l.s $f13,testingx
+#comparing
+c.eq.s $f12, $f13
+bc1t exit
+#loading power
+lw $a0,powern
+#going to expontial 
+jal exp
+#Display result
+li $v0,2
+mov.s $f12,$f0
+syscall
+#printing new line
+li $v0, 4 
+la $a0, newline 
+syscall 
+j main
+#exit 
+exit:
+li $v0,10
+syscall
+
+
+exp:
+   move $s1,$ra#saving return address
+   l.s $f0,first#result to f0
+   li $a2,0#making counter from a2
+
+exponentialloop:
+    bgt $a2,$a0,ret#when a2 rqual to powern it will return
+    jal power
+    jal factorial
+ 
+    mtc1 $v0,$f2#changing result to float
+    cvt.s.w $f2,$f2
+   
+    div.s $f3,$f3,$f2#dividing power of xto n!
+    
+    add.s $f0,$f0,$f3#sum 
+ 
+    addi $a2,$a2,1# a2+1
+    j exponentialloop
+
+ret:
+   move $ra,$s1
+   jr $ra
+   
+
+
+power:
+   move $t1,$a2
+   mov.s $f4,$f12
+   l.s $f3,begin
+   beq $a2,0,return
+powerloop:
+    beq $t1,0,return
+    mul.s $f3,$f3,$f4
+    subi $t1,$t1,1
+    j powerloop
+return:
+    jr $ra
+   
+factorial:
+    li $v0,1
+    beq $a2,0,returning#if counter = 0 return
+    li $t1,1
+factloop:
+    bgt $t1,$a2,returning
+    mul $v0,$v0,$t1
+   addi $t1,$t1,1
+   j factloop
+returning:
+   jr $ra
+
+ 
