@@ -1,0 +1,24 @@
+.data
+array: .space 1024
+.text
+
+#Number of blocks:1
+#Cache block size:32
+#YOUR METRIC SCORE:5100
+#The reasons for my optimization
+#In Assembly code: I used word rather than bytes to decrease accessing to the memory cases.
+#In the configurations of cache parameters:I used min number of blocks -1.
+
+li $t1, 0
+la $a1, array
+li $t2, 1
+li $t3, 1024
+loop:
+beq $t1, $t3, end
+add $t1, $t1, $t2
+sb $t2, 0($a1)
+add $a1, $a1, $t2
+j loop
+end:
+li $v0, 10
+syscall
